@@ -1,0 +1,568 @@
+Index: messenger-ui/src/components/authForm/login/Login.js
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/messenger-ui/src/components/authForm/login/Login.js b/messenger-ui/src/components/authForm/login/Login.js
+--- a/messenger-ui/src/components/authForm/login/Login.js	
++++ b/messenger-ui/src/components/authForm/login/Login.js	(date 1738835040174)
+@@ -60,4 +60,4 @@
+     );
+ };
+ 
+-export default Login;
++export default Login;
+\ No newline at end of file
+Index: messenger-ui/src/components/authForm/registration/Registration.js
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/messenger-ui/src/components/authForm/registration/Registration.js b/messenger-ui/src/components/authForm/registration/Registration.js
+--- a/messenger-ui/src/components/authForm/registration/Registration.js	
++++ b/messenger-ui/src/components/authForm/registration/Registration.js	(date 1738835051976)
+@@ -62,4 +62,4 @@
+     );
+ };
+ 
+-export default Registration;
++export default Registration;
+\ No newline at end of file
+Index: messenger-ui/src/components/authForm/AuthContext.js
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/messenger-ui/src/components/authForm/AuthContext.js b/messenger-ui/src/components/authForm/AuthContext.js
+--- a/messenger-ui/src/components/authForm/AuthContext.js	
++++ b/messenger-ui/src/components/authForm/AuthContext.js	(date 1738841340753)
+@@ -5,8 +5,18 @@
+ class AuthProvider extends Component {
+     constructor(props) {
+         super(props);
++
++        let storedUser = null;
++        try {
++            const userData = localStorage.getItem("user");
++            storedUser = userData ? JSON.parse(userData) : null;
++        } catch (error) {
++            console.error("❌ Ошибка парсинга localStorage:", error);
++            localStorage.clear(); // Удаляем поврежденные данные
++        }
++
+         this.state = {
+-            user: null,
++            user: storedUser,
+             loading: true,
+         };
+     }
+@@ -17,17 +27,19 @@
+             credentials: "include",
+         })
+             .then(response => {
+-                if (!response.ok) {
+-                    throw new Error("Unauthorized");
+-                }
+-                return response.json();
++                if (response.status === 200) {
++                    return response.json();
++                } else {
++                    throw new Error("Unauthorized");
++                }
++            })
++            .then(userData => {
+             })
+             .catch(() => {
++                // ❌ Если нет куков (ошибка 401), удаляем ВСЕ данные
+                 this.setState({ user: null, loading: false });
+-                localStorage.removeItem("user");
+-                localStorage.removeItem("avatarUrl");
+-                localStorage.removeItem("email");
+-                localStorage.removeItem("userId");
++
++                localStorage.clear(); // Удаляем всё
+             });
+     }
+ 
+Index: messenger-ui/src/components/mainLayout/sidebar/сhatList/ChatList.js
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/messenger-ui/src/components/mainLayout/sidebar/сhatList/ChatList.js b/messenger-ui/src/components/mainLayout/sidebar/сhatList/ChatList.js
+--- a/messenger-ui/src/components/mainLayout/sidebar/сhatList/ChatList.js	
++++ b/messenger-ui/src/components/mainLayout/sidebar/сhatList/ChatList.js	(date 1738841746355)
+@@ -28,7 +28,11 @@
+                                 className={chat.id === activeChatId ? "active" : ""}
+                                 onClick={() => {
+                                     console.log(`📌 Выбран чат: ${chat.id}`);
+-                                    onSelectChat(chat.id);
++                                    onSelectChat({
++                                        id: chat.id,
++                                        name: chat.name,
++                                        description: chat.description,
++                                    });
+                                 }}
+                             >
+                                 <div className="chat-item">
+Index: messenger-ui/src/components/mainLayout/sidebar/Sidebar.js
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/messenger-ui/src/components/mainLayout/sidebar/Sidebar.js b/messenger-ui/src/components/mainLayout/sidebar/Sidebar.js
+--- a/messenger-ui/src/components/mainLayout/sidebar/Sidebar.js	
++++ b/messenger-ui/src/components/mainLayout/sidebar/Sidebar.js	(date 1738841465904)
+@@ -15,7 +15,7 @@
+     const [loading, setLoading] = useState(false);
+     const [error, setError] = useState(null);
+     const [isPersonal, setIsPersonal] = useState(true);
+-    const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem("user")); // Проверка авторизации
++    const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem("user"));
+ 
+     useEffect(() => {
+         const storedUser = localStorage.getItem("user");
+@@ -28,7 +28,7 @@
+             setIsProfileOpen(false);
+             setIsLoggedIn(false);
+         } else {
+-            fetchGroupChats(); // 🔹 Загружаем чаты при входе
++            fetchGroupChats();
+         }
+     }, []);
+ 
+@@ -42,10 +42,7 @@
+         })
+             .then(response => response.json())
+             .then(data => {
+-                // ✅ Удаляем дубликаты
+                 const uniqueChats = [...new Map(data.map(chat => [chat.id, chat])).values()];
+-
+-                // ✅ Добавляем "Main Room" только если его нет в списке
+                 const updatedChats = uniqueChats.some(chat => chat.id === 1)
+                     ? uniqueChats
+                     : [{ id: 1, name: "Main Room", description: "Основная комната" }, ...uniqueChats];
+@@ -76,12 +73,11 @@
+         })
+             .then(response => response.json())
+             .then(createdRoom => {
+-                setGroupChats(prev => [...prev, createdRoom]); // Добавляем новый чат в список
++                setGroupChats(prev => [...prev, createdRoom]);
+             })
+             .catch(error => alert(`Ошибка: ${error.message}`));
+     };
+ 
+-    // 🔹 Логаут: Очистка чатов, удаление данных пользователя, рендер Main Room
+     const handleLogout = async () => {
+         try {
+             await fetch("http://localhost:8080/api/auth/logout", {
+@@ -92,35 +88,27 @@
+             console.error("Ошибка при выходе:", error);
+         }
+ 
+-        // ❗ Очистка данных
+         localStorage.removeItem("user");
+         localStorage.removeItem("userId");
+         localStorage.removeItem("avatarUrl");
+         setIsProfileOpen(false);
+         setIsLoggedIn(false);
+-
+-        // ❗ Очищаем список чатов
+         setPersonalChats([]);
+         setGroupChats([{ id: 1, name: "Main Room", description: "Основная комната" }]);
+-
+-        // ❗ Обновляем UI
+         setIsGroupsLoaded(false);
+-
+-        // ❗ Автоматически рендерим Main Room (ID 1)
+         onSelectChat(1);
+     };
+ 
+-    // 🔹 Авторизация (вход)
+     const handleLogin = (userData) => {
+         localStorage.setItem("user", userData.username);
+         localStorage.setItem("userId", userData.id);
+-        localStorage.setItem("email", userData.email || "");
++        localStorage.setItem("email", userData.email );
+         localStorage.setItem("avatarUrl", userData.avatarUrl || "/default-avatar.webp");
+ 
+         setIsLoggedIn(true);
+-        setIsProfileOpen(false); // ❗ Профиль НЕ открывается автоматически
+-        setFormType(null); // ❗ Закрываем окно логина
+-        fetchGroupChats(); // 🔹 Загружаем чаты после входа
++        setIsProfileOpen(false);
++        setFormType(null);
++        fetchGroupChats();
+     };
+ 
+     return (
+@@ -143,7 +131,7 @@
+                         setIsPersonal(value);
+                         if (!value) fetchGroupChats();
+                     }}
+-                    onAddGroupChat={handleAddGroupChat} // ❗ Кнопка "+" теперь всегда доступна
++                    onAddGroupChat={handleAddGroupChat}
+                 />
+ 
+                 {loading && <p>Загрузка...</p>}
+@@ -152,7 +140,7 @@
+ 
+             {isProfileOpen && localStorage.getItem("user") && (
+                 <UserProfile
+-                    onLogout={handleLogout} // Передаем логаут
++                    onLogout={handleLogout}
+                     onClose={() => setIsProfileOpen(false)}
+                     username={localStorage.getItem("user")}
+                 />
+Index: messenger-ui/src/components/mainLayout/sidebar/userProfile/UserProfile.js
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/messenger-ui/src/components/mainLayout/sidebar/userProfile/UserProfile.js b/messenger-ui/src/components/mainLayout/sidebar/userProfile/UserProfile.js
+--- a/messenger-ui/src/components/mainLayout/sidebar/userProfile/UserProfile.js	
++++ b/messenger-ui/src/components/mainLayout/sidebar/userProfile/UserProfile.js	(date 1738835671020)
+@@ -51,4 +51,4 @@
+     );
+ };
+ 
+-export default UserProfile;
++export default UserProfile;
+\ No newline at end of file
+Index: messenger-ui/src/components/mainLayout/chatContainer/ChatContainer.js
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/messenger-ui/src/components/mainLayout/chatContainer/ChatContainer.js b/messenger-ui/src/components/mainLayout/chatContainer/ChatContainer.js
+--- a/messenger-ui/src/components/mainLayout/chatContainer/ChatContainer.js	
++++ b/messenger-ui/src/components/mainLayout/chatContainer/ChatContainer.js	(date 1738842390573)
+@@ -10,162 +10,169 @@
+     const [isUsersModalOpen, setIsUsersModalOpen] = useState(false);
+     const [selectedMessage, setSelectedMessage] = useState(null);
+     const [editedMessage, setEditedMessage] = useState("");
++    const [selectedMessageId, setSelectedMessageId] = useState(null); // Храним ID выбранного сообщения
+ 
+     const fetchMessages = useCallback(() => {
+         if (!activeChatId) return;
+ 
+-        fetch(`http://localhost:8080/api/messages/${activeChatId}`, {
+-            method: "GET",
++        fetch(http://localhost:8080/api/messages/${activeChatId}, {
++        method: "GET",
+             credentials: "include",
+-        })
+-            .then(response => response.json())
+-            .then(data => {
+-                console.log("📩 Полученные сообщения:", data);
+-                setMessages(data);
+-            })
+-            .catch(error => console.error("❌ Ошибка загрузки сообщений:", error));
+-    }, [activeChatId]);
++    })
++        .then(response => response.json())
++        .then(data => {
++            console.log("📩 Полученные сообщения:", data);
++            setMessages(data);
++        })
++        .catch(error => console.error("❌ Ошибка загрузки сообщений:", error));
++}, [activeChatId]);
+ 
+-    useEffect(() => {
+-        setMessages([]);
+-        fetchMessages();
+-    }, [fetchMessages]);
++useEffect(() => {
++    setMessages([]);
++    fetchMessages();
++}, [fetchMessages]);
+ 
+-    const sendMessage = () => {
+-        if (!newMessage.trim()) return;
++const sendMessage = () => {
++    if (!newMessage.trim()) return;
+ 
+-        const userId = localStorage.getItem("userId");
+-        if (!userId) {
+-            console.error("❌ Ошибка: userId не найден в localStorage");
+-            return;
+-        }
++    const userId = localStorage.getItem("userId");
++    if (!userId) {
++        console.error("❌ Ошибка: userId не найден в localStorage");
++        return;
++    }
+ 
+-        const messageData = {
+-            content: newMessage,
+-            roomId: activeChatId,
+-            userId: parseInt(userId, 10),
+-            timestamp: new Date().toISOString(),
+-        };
++    const messageData = {
++        content: newMessage,
++        roomId: activeChatId,
++        userId: parseInt(userId, 10),
++        timestamp: new Date().toISOString(),
++    };
+ 
+-        fetch("http://localhost:8080/api/messages/write", {
+-            method: "POST",
+-            headers: { "Content-Type": "application/json" },
+-            credentials: "include",
+-            body: JSON.stringify(messageData),
+-        })
+-            .then(response => response.text())
+-            .then(data => {
+-                console.log("📩 Ответ сервера на отправку сообщения:", data);
+-                setNewMessage("");
+-                fetchMessages();
+-            })
+-            .catch(error => console.error("❌ Ошибка отправки сообщения:", error));
+-    };
++    fetch("http://localhost:8080/api/messages/write", {
++        method: "POST",
++        headers: { "Content-Type": "application/json" },
++        credentials: "include",
++        body: JSON.stringify(messageData),
++    })
++        .then(response => response.text())
++        .then(data => {
++            console.log("📩 Ответ сервера на отправку сообщения:", data);
++            setNewMessage("");
++            fetchMessages();
++        })
++        .catch(error => console.error("❌ Ошибка отправки сообщения:", error));
++};
+ 
+-    const deleteMessage = () => {
+-        if (!selectedMessage || !selectedMessage.id) {
+-            console.error("❌ Ошибка: ID сообщения отсутствует");
+-            return;
+-        }
++const deleteMessage = () => {
++    if (!selectedMessageId) {
++        console.error("❌ Ошибка: ID сообщения отсутствует");
++        return;
++    }
+ 
+-        fetch(`http://localhost:8080/api/messages/delete/${selectedMessage.id}`, {
+-            method: "DELETE",
+-            credentials: "include",
+-        })
+-            .then(response => {
+-                if (!response.ok) throw new Error("Ошибка при удалении сообщения");
+-                return response.text();
+-            })
+-            .then(() => {
+-                console.log("🗑️ Сообщение удалено:", selectedMessage.id);
+-                setSelectedMessage(null);
+-                fetchMessages();
+-            })
+-            .catch(error => console.error("❌ Ошибка удаления сообщения:", error));
+-    };
++    fetch(http://localhost:8080/api/messages/delete/${selectedMessageId}, {
++    method: "DELETE",
++        credentials: "include",
++})
++.then(response => {
++    if (!response.ok) throw new Error("Ошибка при удалении сообщения");
++    return response.text();
++})
++    .then(() => {
++        console.log("🗑️ Сообщение удалено:", selectedMessageId);
++        setSelectedMessage(null);
++        setSelectedMessageId(null);
++        fetchMessages();
++    })
++    .catch(error => console.error("❌ Ошибка удаления сообщения:", error));
++};
+ 
+-    const editMessage = () => {
+-        if (!selectedMessage || !selectedMessage.id) {
+-            console.error("❌ Ошибка: ID сообщения отсутствует");
+-            return;
+-        }
++const editMessage = () => {
++    if (!selectedMessageId) {
++        console.error("❌ Ошибка: ID сообщения отсутствует");
++        return;
++    }
+ 
+-        if (!editedMessage.trim()) return;
++    if (!editedMessage.trim()) return;
+ 
+-        const updatedMessageData = {
+-            content: editedMessage
+-        };
++    const updatedMessageData = {
++        content: editedMessage
++    };
+ 
+-        fetch(`http://localhost:8080/api/messages/edit/${selectedMessage.id}`, {
+-            method: "PUT",
+-            headers: { "Content-Type": "application/json" },
+-            credentials: "include",
+-            body: JSON.stringify(updatedMessageData),
+-        })
+-            .then(response => {
+-                if (!response.ok) throw new Error("Ошибка при редактировании сообщения");
+-                return response.json();
+-            })
+-            .then(() => {
+-                console.log("✏️ Сообщение обновлено:", selectedMessage.id);
+-                setSelectedMessage(null);
+-                fetchMessages();
+-            })
+-            .catch(error => console.error("❌ Ошибка редактирования сообщения:", error));
+-    };
++    fetch(http://localhost:8080/api/messages/edit/${selectedMessageId}, {
++    method: "PUT",
++        headers: { "Content-Type": "application/json" },
++    credentials: "include",
++        body: JSON.stringify(updatedMessageData),
++})
++.then(response => {
++    if (!response.ok) throw new Error("Ошибка при редактировании сообщения");
++    return response.json();
++})
++    .then(() => {
++        console.log("✏️ Сообщение обновлено:", selectedMessageId);
++        setSelectedMessage(null);
++        setSelectedMessageId(null);
++        fetchMessages();
++    })
++    .catch(error => console.error("❌ Ошибка редактирования сообщения:", error));
++};
+ 
+-    return (
+-        <div className="chat-container">
+-            <div className="chat-header">
+-                <span className="chat-title">{chatInfo?.name || `Чат ${activeChatId}`}</span>
+-                <button className="chat-info-btn" onClick={() => setIsModalOpen(true)}>ℹ️</button>
+-            </div>
++return (
++    <div className="chat-container">
++        <div className="chat-header">
++            <span className="chat-title">{chatInfo?.name || Чат ${activeChatId}}</span>
++            <button className="chat-info-btn" onClick={() => setIsModalOpen(true)}>ℹ️</button>
++        </div>
+ 
+-            <div className="chat-messages">
+-                {messages.map((message, index) => (
+-                    <Message
+-                        key={message.id || `msg-${index}`}
+-                        content={message.content}
+-                        sender={{
+-                            name: message.userDTO?.username || "Anonymous",
+-                            avatarUrl: message.userDTO?.avatarUrl || "/default-avatar.webp",
+-                        }}
+-                        isOwnMessage={message.userId === parseInt(localStorage.getItem("userId"), 10)}
+-                        onClick={() => {
+-                            setSelectedMessage(message);
+-                            setEditedMessage(message.content);
+-                        }}
+-                    />
+-                ))}
+-            </div>
++        <div className="chat-messages">
++            {messages.map((message, index) => (
++                <Message
++                    key={message.id || msg-${index}}
++                    content={message.content}
++                    sender={{
++                        name: message.userDTO?.username || "Anonymous",
++                        avatarUrl: message.userDTO?.avatarUrl || "/default-avatar.webp",
++                    }}
++                    isOwnMessage={message.userId === parseInt(localStorage.getItem("userId"), 10)}
++                    onClick={() => {
++                        setSelectedMessage(message);
++                        setEditedMessage(message.content);
++                        setSelectedMessageId(message.id); // Гарантированно сохраняем ID сообщения
++                    }}
++                />
++            ))}
++        </div>
+ 
+-            <div className="chat-input">
+-                <input
+-                    type="text"
+-                    placeholder="Введите сообщение..."
+-                    value={newMessage}
+-                    onChange={(e) => setNewMessage(e.target.value)}
+-                    onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+-                />
+-                <button onClick={sendMessage}>Отправить</button>
+-            </div>
++        <div className="chat-input">
++            <input
++                type="text"
++                placeholder="Введите сообщение..."
++                value={newMessage}
++                onChange={(e) => setNewMessage(e.target.value)}
++                onKeyDown={(e) => e.key === "Enter" && sendMessage()}
++            />
++            <button onClick={sendMessage}>Отправить</button>
++        </div>
+ 
+-            {selectedMessage && (
+-                <div className="message-edit-modal">
+-                    <div className="message-edit-content">
+-                        <h3>Редактировать сообщение</h3>
+-                        <textarea
+-                            value={editedMessage}
+-                            onChange={(e) => setEditedMessage(e.target.value)}
+-                        />
+-                        <button onClick={editMessage}>Сохранить</button>
+-                        <button onClick={deleteMessage}>Удалить</button>
+-                        <button onClick={() => setSelectedMessage(null)}>Отмена</button>
+-                    </div>
+-                </div>
+-            )}
+-        </div>
+-    );
++        {selectedMessage && (
++            <div className="message-edit-modal">
++                <div className="message-edit-content">
++                    <h3>Редактировать сообщение</h3>
++                    <textarea
++                        value={editedMessage}
++                        onChange={(e) => setEditedMessage(e.target.value)}
++                    />
++                    <button onClick={editMessage}>Сохранить</button>
++                    <button onClick={deleteMessage}>Удалить</button>
++                    <button onClick={() => {
++                        setSelectedMessage(null);
++                        setSelectedMessageId(null);
++                    }}>Отмена</button>
++                </div>
++            </div>
++        )}
++    </div>
++);
+ };
+ 
+-export default ChatContainer;
++export default ChatContainer;
+\ No newline at end of file
+Index: messenger-ui/src/components/mainLayout/MainLayout.js
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/messenger-ui/src/components/mainLayout/MainLayout.js b/messenger-ui/src/components/mainLayout/MainLayout.js
+--- a/messenger-ui/src/components/mainLayout/MainLayout.js	
++++ b/messenger-ui/src/components/mainLayout/MainLayout.js	(date 1738835841673)
+@@ -1,10 +1,10 @@
+ import React, { useState } from "react";
+ import Sidebar from "./sidebar/Sidebar";
+ import ChatContainer from "./chatContainer/ChatContainer";
+-import "./MainLayout.css"; // CSS для макета
++import "./MainLayout.css";
+ 
+ const MainLayout = () => {
+-    const [activeChatId, setActiveChatId] = useState(1); // Храним ID активного чата
++    const [activeChatId, setActiveChatId] = useState(1);
+ 
+     return (
+         <div className="main-layout">
