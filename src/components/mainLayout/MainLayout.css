@@ -1,0 +1,41 @@
+/* Основной макет */
+.main-layout {
+    display: flex;
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
+}
+
+/* Чат занимает всю доступную область */
+.chat-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background-color: #343541;
+    color: white;
+    overflow: hidden;
+    transition: margin-left 0.3s ease-in-out;
+}
+
+/* Оставляем место для сайдбара */
+.chat-container {
+    margin-left: 280px;
+}
+
+@media (max-width: 1024px) {
+    .chat-container {
+        margin-left: 220px;
+    }
+}
+
+@media (max-width: 768px) {
+    .chat-container {
+        margin-left: 60px;
+    }
+}
+
+@media (max-width: 480px) {
+    .chat-container {
+        margin-left: 0;
+    }
+}

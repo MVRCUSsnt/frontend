@@ -1,0 +1,209 @@
+/* Основные стили для боковой панели */
+.sidebar {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    width: 280px;
+    background-color: #202123;
+    color: white;
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
+    transition: width 0.3s ease-in-out;
+    overflow: hidden;
+}
+
+/* Контейнер для списка чатов */
+.chat-list-container {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto; /* Теперь работает скролл, если чатов много */
+    padding: 10px;
+}
+
+/* Контейнер для переключателя вкладок */
+.chat-toggle-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.chat-toggle-buttons button {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    cursor: pointer;
+    background-color: #e0e0e0;
+    font-size: 14px;
+    font-weight: bold;
+    transition: background 0.3s, color 0.3s;
+}
+
+.chat-toggle-buttons button:first-child {
+    border-top-left-radius: 10px;
+    border-bottom-left-radius: 10px;
+}
+
+.chat-toggle-buttons button:last-child {
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+}
+
+.chat-toggle-buttons button:hover {
+    background-color: #b0c4de;
+}
+
+.chat-toggle-buttons button.active {
+    background-color: blue;
+    color: white;
+}
+
+/* Чат-лист */
+.chat-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    flex-grow: 1;
+    overflow-y: auto; /* Разрешаем скролл при большом количестве чатов */
+    max-height: calc(100vh - 220px); /* Оставляем место для профиля и кнопки "+" */
+    scrollbar-width: thin;
+    scrollbar-color: #888 #202123;
+}
+
+.chat-list::-webkit-scrollbar {
+    width: 8px;
+}
+
+.chat-list::-webkit-scrollbar-track {
+    background: #202123;
+}
+
+.chat-list::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 10px;
+}
+
+.chat-list li {
+    padding: 12px;
+    border-radius: 10px;
+    cursor: pointer;
+    text-align: center;
+    background-color: lightblue;
+    transition: background 0.3s, color 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 50px;
+    margin-bottom: 5px;
+    color: black;
+}
+
+.chat-list li:hover,
+.chat-list li.active {
+    background-color: blue;
+    color: white;
+}
+
+/* Кнопка добавления группы */
+.add-group-chat {
+    width: 100%;
+    padding: 10px;
+    margin-top: 10px;
+    border: none;
+    cursor: pointer;
+    background-color: #4caf50;
+    color: white;
+    font-size: 18px;
+    font-weight: bold;
+    border-radius: 10px;
+    transition: background 0.3s ease;
+}
+
+.add-group-chat:hover {
+    background-color: #45a049;
+}
+
+/* Профиль внизу */
+.profile-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    background-color: #1e1e1e;
+    border-radius: 10px;
+    width: 90%;
+    margin: 10px auto; /* Центрируем и добавляем отступ */
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.profile-container:hover {
+    background-color: #35363a;
+}
+
+/* Кнопка скрытия/открытия сайдбара */
+.toggle-sidebar {
+    display: none;
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: transparent;
+    border: none;
+    font-size: 24px;
+    color: white;
+    cursor: pointer;
+}
+
+@media (max-width: 1024px) {
+    .sidebar {
+        width: 220px;
+    }
+}
+
+@media (max-width: 768px) {
+    .sidebar {
+        width: 60px;
+    }
+
+    .profile-container .profile-name {
+        display: none;
+    }
+
+    .sidebar button {
+        font-size: 12px;
+        padding: 8px;
+    }
+}
+
+@media (max-width: 480px) {
+    .sidebar {
+        width: 0;
+        visibility: hidden;
+    }
+
+    .sidebar.open {
+        width: 220px;
+        visibility: visible;
+    }
+
+    .toggle-sidebar {
+        display: block;
+    }
+}
+
+/* Затемнение при открытии окна авторизации */
+.auth-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}

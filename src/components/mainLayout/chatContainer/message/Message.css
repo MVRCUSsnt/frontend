@@ -1,0 +1,130 @@
+.message-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    margin: 10px 0;
+    max-width: 80%;
+    cursor: pointer;
+    transition: background 0.3s ease-in-out;
+}
+
+.own-message {
+    align-items: flex-end;
+}
+
+.message-container:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 5px;
+}
+
+/* Информация о сообщении */
+.message-info {
+    display: flex;
+    align-items: center;
+    margin-bottom: 5px;
+}
+
+.message-avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+.message-sender {
+    font-size: 0.9em;
+    font-weight: bold;
+    color: #ffffff;
+}
+
+.message {
+    padding: 10px;
+    border-radius: 8px;
+    max-width: 100%;
+    word-wrap: break-word;
+}
+
+.own {
+    background-color: #d1f7c4;
+    color: #000;
+    align-self: flex-end;
+}
+
+.other {
+    background-color: #f1f0f0;
+    color: #333;
+}
+
+/* Модальное окно редактирования и удаления сообщений */
+.message-edit-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.message-edit-content {
+    background: #282c34;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    color: white;
+    width: 320px;
+}
+
+.message-edit-content h3 {
+    margin-bottom: 10px;
+}
+
+.message-edit-content textarea {
+    width: 100%;
+    height: 80px;
+    padding: 10px;
+    background: #3b3f46;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    resize: none;
+}
+
+.message-edit-content button {
+    width: 100%;
+    padding: 10px;
+    margin: 5px 0;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.message-edit-content button:first-of-type {
+    background-color: #0077cc;
+    color: white;
+}
+
+.message-edit-content button:first-of-type:hover {
+    background-color: #005fa3;
+}
+
+.message-edit-content button:nth-of-type(2) {
+    background-color: red;
+    color: white;
+}
+
+.message-edit-content button:nth-of-type(2):hover {
+    background-color: darkred;
+}
+
+.message-edit-content button:last-of-type {
+    background-color: gray;
+    color: white;
+}
+
+.message-edit-content button:last-of-type:hover {
+    background-color: darkgray;
+}

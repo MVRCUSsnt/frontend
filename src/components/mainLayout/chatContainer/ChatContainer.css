@@ -1,0 +1,167 @@
+/* Основной контейнер чата */
+.chat-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background-color: #343541;
+    color: white;
+    height: 100vh;
+    margin-left: 280px;
+    transition: margin-left 0.3s ease-in-out;
+}
+
+/* Заголовок чата */
+.chat-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 15px;
+    background-color: #202123;
+    border-bottom: 1px solid #444;
+}
+
+.chat-title {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.chat-info-btn {
+    background: none;
+    border: none;
+    font-size: 20px;
+    color: white;
+    cursor: pointer;
+}
+
+.chat-info-btn:hover {
+    color: #0077cc;
+}
+
+/* Сообщения */
+.chat-messages {
+    flex: 1;
+    padding: 15px;
+    overflow-y: auto;
+    scrollbar-width: none;
+}
+
+.chat-messages::-webkit-scrollbar {
+    display: none;
+}
+
+/* Поле ввода */
+.chat-input {
+    display: flex;
+    padding: 15px;
+    border-top: 1px solid #444;
+    background-color: #202123;
+}
+
+.chat-input input {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    background-color: #444;
+    color: white;
+    margin-right: 10px;
+}
+
+.chat-input button {
+    padding: 10px 15px;
+    background-color: #0077cc;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    cursor: pointer;
+}
+
+.chat-input button:hover {
+    background-color: #005fa3;
+}
+
+/* Модальное окно */
+.chat-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.chat-modal {
+    background: #282c34;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    color: white;
+    width: 320px;
+}
+
+.chat-modal h2 {
+    margin-bottom: 10px;
+}
+
+/* Список участников */
+.chat-users-list {
+    list-style: none;
+    padding: 0;
+    margin: 10px 0;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+/* Элемент списка участника */
+.chat-users-list li {
+    display: flex;
+    align-items: center;
+    padding: 8px;
+    background: #3b3f46;
+    border-radius: 5px;
+    margin-bottom: 5px;
+    font-size: 14px;
+    color: white;
+}
+
+/* Маленькие фото участников */
+.user-avatar {
+    width: 35px; /* 🔹 Уменьшенный размер фото */
+    height: 35px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-right: 10px;
+}
+
+/* Кнопки модального окна */
+.chat-modal-btn {
+    width: 100%;
+    padding: 10px;
+    margin: 5px 0;
+    border: none;
+    cursor: pointer;
+    background-color: #0077cc;
+    color: white;
+    border-radius: 5px;
+}
+
+.chat-modal-btn:hover {
+    background-color: #005fa3;
+}
+
+.chat-modal-close {
+    background: red;
+    color: white;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+.chat-modal-close:hover {
+    background: darkred;
+}
